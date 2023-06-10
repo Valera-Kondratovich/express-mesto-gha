@@ -8,7 +8,7 @@ const getCards = ((req, res) => {
 
 const createCard = ((req, res) => {
   const newCard = {
-    ...req.body, owner: req.user._id
+    ...req.body, owner: req.user._id,
   };
   Card.create(newCard)
     .then((card) => res.status(201).send(card))
@@ -34,7 +34,8 @@ const delCard = ((req, res) => {
         res.status(400).send({ message: `Передан несуществующий _id:${req.params.cardId} карточки` });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка', error: err.message, err: err.name })});
+      res.status(500).send({ message: 'Произошла ошибка', error: err.message, err: err.name });
+    });
 });
 
 const likeCard = ((req, res) => {
@@ -54,7 +55,8 @@ const likeCard = ((req, res) => {
         res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка' });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка', error: err.message, err: err.name })});
+      res.status(500).send({ message: 'Произошла ошибка', error: err.message, err: err.name });
+    });
 });
 
 const dislikeCard = ((req, res) => {
@@ -74,7 +76,8 @@ const dislikeCard = ((req, res) => {
         res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка' });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка', error: err.message, err: err.name })});
+      res.status(500).send({ message: 'Произошла ошибка', error: err.message, err: err.name });
+    });
 });
 
 module.exports = {

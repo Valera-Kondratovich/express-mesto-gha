@@ -18,38 +18,40 @@ const createUser = (req, res) => {
     });
 };
 
-const getUserById = (req, res)=>{
+const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => res.status(200).send(user))
-    .catch((err)=>{
+    .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(404).send({message: `Пользователь по указанному id:${req.params.userId} не найден` });
+        res.status(404).send({ message: `Пользователь по указанному id:${req.params.userId} не найден` });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка', error: err.message, err: err.name })});
+      res.status(500).send({ message: 'Произошла ошибка', error: err.message, err: err.name });
+    });
 };
 
 const updateUser = (req, res) => {
   User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .then((user) => res.status(200).send(user))
-    .catch((err)=>{
+    .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(404).send({message: `Пользователь по указанному id:${req.user._id} не найден` });
+        res.status(404).send({ message: `Пользователь по указанному id:${req.user._id} не найден` });
         return;
       }
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля', error: err.message });
         return;
       }
-      res.status(500).send({ message: 'Произошла ошибка', error: err.message, err: err.name })});
+      res.status(500).send({ message: 'Произошла ошибка', error: err.message, err: err.name });
+    });
 };
 
-const updateAvatarUser = (req, res) =>{
+const updateAvatarUser = (req, res) => {
   User.findByIdAndUpdate(req.user._id, req.body, { new: true, runValidators: true })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(404).send({message: `Пользователь по указанному id:${req.user._id} не найден` });
+        res.status(404).send({ message: `Пользователь по указанному id:${req.user._id} не найден` });
         return;
       }
       if (err.name === 'ValidationError') {
