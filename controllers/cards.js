@@ -35,7 +35,7 @@ const delCard = ((req, res) => {
         return;
       }
       if (err.name === 'CastError') {
-        res.status(NOT_FOUND_ERROR).send({ message: `Передан несуществующий _id:${req.params.cardId} карточки` });
+        res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
         return;
       }
       res.status(DEFAULT_ERROR).send({ message: 'Произошла ошибка' });

@@ -24,10 +24,14 @@ const createUser = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
+    .orFile(new Error('ошибка'))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.message === 'ошибка') {
         res.status(NOT_FOUND_ERROR).send({ message: `Пользователь по указанному id:${req.params.userId} не найден` });
+      }
+      if (err.name === 'CastError') {
+        res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
         return;
       }
       res.status(DEFAULT_ERROR).send({ message: 'Произошла ошибка' });
