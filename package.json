@@ -8,7 +8,7 @@
     "dev": "nodemon app.js",
     "lint": "npx eslint"
   },
-  "author": "",
+  "author": "Kondratovich Valera",
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
