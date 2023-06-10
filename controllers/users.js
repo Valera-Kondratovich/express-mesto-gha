@@ -24,7 +24,7 @@ const createUser = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .orFile(new Error('ошибка'))
+    .orFail(new Error('ошибка'))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.message === 'ошибка') {
