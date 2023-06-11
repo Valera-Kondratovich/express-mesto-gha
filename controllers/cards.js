@@ -27,10 +27,10 @@ const createCard = ((req, res) => {
 
 const delCard = ((req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .orFail(new Error('ошибка'))
+    .orFail(new Error('cardNotFound'))
     .then(() => res.status(200).send({ message: 'Карточка удалена' }))
     .catch((err) => {
-      if (err.message === 'ошибка') {
+      if (err.message === 'cardNotFound') {
         res.status(NOT_FOUND_ERROR).send({ message: `Передан несуществующий _id:${req.params.cardId} карточки` });
         return;
       }
@@ -48,10 +48,10 @@ const likeCard = ((req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error('ошибка'))
+    .orFail(new Error('cardNotFound'))
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.message === 'ошибка') {
+      if (err.message === 'cardNotFound') {
         res.status(NOT_FOUND_ERROR).send({ message: `Передан несуществующий _id:${req.params.cardId} карточки` });
         return;
       }
@@ -69,10 +69,10 @@ const dislikeCard = ((req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error('ошибка'))
+    .orFail(new Error('cardNotFound'))
     .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.message === 'ошибка') {
+      if (err.message === 'cardNotFound') {
         res.status(NOT_FOUND_ERROR).send({ message: `Карточка по указанному id:${req.params.cardId} не найдена` });
         return;
       }
