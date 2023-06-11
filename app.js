@@ -1,9 +1,9 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 const express = require('express');
 const mongoose = require('mongoose');
-const routes = require('./routes/index');
-const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const routes = require('./routes/index');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
