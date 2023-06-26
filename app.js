@@ -1,9 +1,17 @@
+require('dotenv').config();
 // eslint-disable-next-line import/no-extraneous-dependencies
 const express = require('express');
 const mongoose = require('mongoose');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const routes = require('./routes/index');
+const errorHandler = require('./middlewares/error');
+const auth = require('./middlewares/auth');
+const {
+  login,
+  createUser,
+} = require('./controllers/users');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -27,11 +35,9 @@ app.listen(PORT, () => {
 app.use(limiter);
 app.use(helmet());
 app.use(express.json());
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6483541f77b845b1b68f135b',
-  };
-
-  next();
-});
+app.use(cookieParser());
+app.post('/signin', login);
+app.post('/signup', createUser);
+app.use(auth);
 app.use(routes);
+app.use(errorHandler);
