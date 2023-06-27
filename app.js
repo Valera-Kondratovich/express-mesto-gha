@@ -24,7 +24,10 @@ const limiter = rateLimit({
 const { PORT = 3000 } = process.env;
 
 const app = express();
-
+app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
+  console.log('Слушаю порт 3000');
+});
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
 });
@@ -51,7 +54,3 @@ app.use(auth);
 app.use(routes);
 app.use(errors());
 app.use(errorHandler);
-app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log('Слушаю порт 3000');
-});

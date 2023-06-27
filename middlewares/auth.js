@@ -7,7 +7,10 @@ const auth = (req, res, next) => {
   try {
     payload = jwt.verify(token, process.env.JWT_SECRET);
   } catch (err) {
-    next(new UnauthorizedError('Необходима авторизация'));
+    if (err.name === 'JsonWebTokenError') {
+      next(new UnauthorizedError('Необходима авторизация'));
+      return;
+    }
   }
   req.user = payload;
   next();

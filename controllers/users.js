@@ -26,7 +26,9 @@ const login = (req, res, next) => {
         }
       });
     })
-    .catch(next);
+    .catch((err) => {
+      next(err);
+    });
 };
 
 const getUsers = (req, res, next) => {
