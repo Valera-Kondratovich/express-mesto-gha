@@ -5,8 +5,9 @@ const mongoose = require('mongoose');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
+const { celebrate, Joi, errors } = require('celebrate');
 const routes = require('./routes/index');
-const errorHandler = require('./middlewares/error');
+const errorHandler = require('./middlewares/errorHendler');
 const auth = require('./middlewares/auth');
 const {
   login,
@@ -28,16 +29,29 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
 });
 
-app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log('Слушаю порт 3000');
-});
 app.use(limiter);
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(2),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(2),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+  }),
+}), createUser);
 app.use(auth);
 app.use(routes);
+app.use(errors());
 app.use(errorHandler);
+app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
+  console.log('Слушаю порт 3000');
+});

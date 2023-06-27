@@ -1,21 +1,20 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const UnauthorizedError = require('../errors/unauthorizedError');
+const ConflictError = require('../errors/conflictError');
+const NotFoundError = require('../errors/notFoundError');
+const IncorrectDataError = require('../errors/incorrectDataError');
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  if (email === '' || password === '') {
-    throw new Error('incorrectData');
-  }
   User.findOne({ email })
+    .orFail(() => new UnauthorizedError('Пользователь не найден в системе'))
     .select('+password')
     .then((user) => {
-      if (!user) {
-        throw new Error('incorrectData');
-      }
       bcrypt.compare(String(password), user.password).then((matched) => {
         if (matched) {
-          const token = jwt.sign({ _id: user._id }, process.env["JWT_SECRET"]);
+          const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
           res.cookie('jwt', token, {
             maxAge: 360000,
             httpOnly: true,
@@ -23,7 +22,7 @@ const login = (req, res, next) => {
           });
           res.status(200).send(user);
         } else {
-          throw new Error('incorrectData');
+          next(new UnauthorizedError('Не правильный логин или пароль'));
         }
       });
     })
@@ -37,15 +36,6 @@ const getUsers = (req, res, next) => {
 };
 
 const createUser = (req, res, next) => {
-  const { email, password } = req.body;
-  if (email === '' || password === '') {
-    throw new Error('incorrectData');
-  }
-  User.findOne({ email }).then((user) => {
-    if (user) {
-      throw new Error('incorrectEmail');
-    }
-  });
   bcrypt
     .hash(String(req.body.password), 10)
     .then((hash) => {
@@ -54,14 +44,21 @@ const createUser = (req, res, next) => {
         password: hash,
       }).then((user) => {
         res.status(201).send(user);
-      });
+      })
+        .catch((err) => {
+          if (err.code === 11000) {
+            next(new ConflictError('Этот email уже зарегистрирован в базе'));
+            return;
+          }
+          next(err);
+        });
     })
     .catch(next);
 };
 
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(new Error('userNotFound'))
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => res.status(200).send(user))
     .catch(next);
 };
@@ -69,7 +66,7 @@ const getUserById = (req, res, next) => {
 const updateUser = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
-    { name: req.body.name, avatar: req.body.avatar, about: req.body.about },
+    { name: req.body.name, about: req.body.about },
     { new: true, runValidators: true },
   )
     .then((user) => res.status(200).send(user))
@@ -77,12 +74,18 @@ const updateUser = (req, res, next) => {
 };
 
 const updateAvatarUser = (req, res, next) => {
-  User.findByIdAndUpdate(req.user._id, req.body, {
+  User.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar }, {
     new: true,
     runValidators: true,
   })
     .then((user) => res.status(200).send(user))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new IncorrectDataError('Введен некорректный URL аватара'));
+        return;
+      }
+      next(err);
+    });
 };
 
 module.exports = {

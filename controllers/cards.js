@@ -1,6 +1,7 @@
-const jwt = require('jsonwebtoken');
 const Card = require('../models/card');
-const { login } = require('./users');
+const NotFoundError = require('../errors/notFoundError');
+const Forbidden = require('../errors/forbidden');
+const IncorrectDataError = require('../errors/incorrectDataError');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -15,17 +16,23 @@ const createCard = (req, res, next) => {
   };
   Card.create(newCard)
     .then((card) => res.status(201).send(card))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new IncorrectDataError('Введены некорректные данные'));
+        return;
+      }
+      next();
+    });
 };
 
 const delCard = (req, res, next) => {
   Card.findById(req.params.cardId)
-    .orFail(new Error('cardNotFound'))
+    .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
       if (card.owner.equals(req.user._id)) {
         Card.findByIdAndRemove(req.params.cardId);
         res.status(200).send({ message: 'Карточка удалена' });
-      } else res.status(403).send({ message: 'Нет прав на удаления карточки' }); //обработка ошибок
+      } else next(new Forbidden('Нет прав на удаления карточки'));
     })
     .catch(next);
 };
@@ -36,7 +43,7 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error('cardNotFound'))
+    .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => res.status(200).send(card))
     .catch(next);
 };
@@ -47,7 +54,7 @@ const dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new Error('cardNotFound'))
+    .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => res.status(200).send(card))
     .catch(next);
 };
