@@ -38,6 +38,7 @@ const getUsers = (req, res, next) => {
 };
 
 const createUser = (req, res, next) => {
+  console.log(req.body);
   bcrypt
     .hash(String(req.body.password), 10)
     .then((hash) => {
