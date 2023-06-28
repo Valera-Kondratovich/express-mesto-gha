@@ -1,8 +1,8 @@
 const { celebrate, Joi } = require('celebrate');
 const router = require('express').Router();
+const auth = require('../middlewares/auth');
 const userRoutes = require('./users');
 const cardRoutes = require('./cards');
-const auth = require('../middlewares/auth');
 const {
   login,
   createUser,
@@ -20,10 +20,12 @@ router.post('/signup', celebrate({
     password: Joi.string().required().min(2),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(/^https?:\/\/w?w?w?\.?[\w-]*\.[a-z0-9]*\/?[\w\-.+*()$[\]~:/?]+#?$/ig),
+    avatar: Joi.string().pattern(/^https?:\/\/w?w?w?\.?[\w-]*\.[a-z0-9]*\/?[\w\-.+*()$[\]~:/?]+#?$/i),
   }),
 }), createUser);
+
 router.use(auth);
+
 router.use('/users', userRoutes);
 router.use('/cards', cardRoutes);
 router.use('/*', (req, res) => {

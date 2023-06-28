@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const errors = require('celebrate');
+const { errors } = require('celebrate');
 const routes = require('./routes/index');
 const errorHandler = require('./middlewares/errorHendler');
 
