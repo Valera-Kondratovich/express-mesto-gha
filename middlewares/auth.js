@@ -3,9 +3,13 @@ const UnauthorizedError = require('../errors/unauthorizedError');
 
 const auth = (req, res, next) => {
   const token = req.cookies.jwt;
+  if (token === '') {
+    next(new UnauthorizedError('Необходима авторизация'));
+    return;
+  }
   let payload;
   try {
-    payload = jwt.verify(token, process.env.JWT_SECRET);
+    payload = jwt.verify(token, 'MDKL');
   } catch (err) {
     if (err.name === 'JsonWebTokenError') {
       next(new UnauthorizedError('Необходима авторизация'));

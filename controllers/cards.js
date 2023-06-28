@@ -5,7 +5,7 @@ const IncorrectDataError = require('../errors/incorrectDataError');
 
 const getCards = (req, res, next) => {
   Card.find({})
-    .then((cards) => res.status(200).send(cards))
+    .then((cards) => res.send(cards))
     .catch(next);
 };
 
@@ -21,7 +21,7 @@ const createCard = (req, res, next) => {
         next(new IncorrectDataError('Введены некорректные данные'));
         return;
       }
-      next();
+      next(err);
     });
 };
 
@@ -30,8 +30,9 @@ const delCard = (req, res, next) => {
     .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
       if (card.owner.equals(req.user._id)) {
-        Card.findByIdAndRemove(req.params.cardId);
-        res.status(200).send({ message: 'Карточка удалена' });
+        Card.findByIdAndRemove(req.params.cardId)
+          .then(() => res.status(200).send({ message: 'Карточка удалена' }))
+          .catch(next)
       } else next(new Forbidden('Нет прав на удаления карточки'));
     })
     .catch(next);

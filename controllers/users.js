@@ -14,7 +14,7 @@ const login = (req, res, next) => {
     .then((user) => {
       bcrypt.compare(String(password), user.password).then((matched) => {
         if (matched) {
-          const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+          const token = jwt.sign({ _id: user._id }, 'MDKL');
           res.cookie('jwt', token, {
             maxAge: 360000,
             httpOnly: true,
@@ -61,7 +61,7 @@ const createUser = (req, res, next) => {
     })
     .catch(next);
 };
-
+console
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(new NotFoundError('Пользователь не найден'))
@@ -76,7 +76,13 @@ const updateUser = (req, res, next) => {
     { new: true, runValidators: true },
   )
     .then((user) => res.status(200).send(user))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new IncorrectDataError('Введен некорректный URL аватара'));
+        return;
+      }
+      next(err);
+    });
 };
 
 const updateAvatarUser = (req, res, next) => {

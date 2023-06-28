@@ -5,14 +5,9 @@ const mongoose = require('mongoose');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const { celebrate, Joi, errors } = require('celebrate');
+const errors = require('celebrate');
 const routes = require('./routes/index');
 const errorHandler = require('./middlewares/errorHendler');
-const auth = require('./middlewares/auth');
-const {
-  login,
-  createUser,
-} = require('./controllers/users');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -36,22 +31,6 @@ app.use(limiter);
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(2),
-  }),
-}), login);
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(2),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(/^https?:\/\/w?w?w?\.?[a-z0-9\D]*#?/),
-  }),
-}), createUser);
-app.use(auth);
 app.use(routes);
 app.use(errors());
 app.use(errorHandler);
