@@ -32,7 +32,7 @@ const delCard = (req, res, next) => {
       if (card.owner.equals(req.user._id)) {
         Card.findByIdAndRemove(req.params.cardId)
           .then(() => res.status(200).send({ message: 'Карточка удалена' }))
-          .catch(next)
+          .catch(next);
       } else next(new Forbidden('Нет прав на удаления карточки'));
     })
     .catch(next);

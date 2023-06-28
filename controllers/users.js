@@ -61,7 +61,6 @@ const createUser = (req, res, next) => {
     })
     .catch(next);
 };
-console
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(new NotFoundError('Пользователь не найден'))
