@@ -38,7 +38,6 @@ const getUsers = (req, res, next) => {
 };
 
 const createUser = (req, res, next) => {
-  console.log(req.body);
   bcrypt
     .hash(String(req.body.password), 10)
     .then((hash) => {
@@ -51,6 +50,10 @@ const createUser = (req, res, next) => {
         .catch((err) => {
           if (err.code === 11000) {
             next(new ConflictError('Этот email уже зарегистрирован в базе'));
+            return;
+          }
+          if (err.name === 'ValidationError') {
+            next(new IncorrectDataError('Введен некорректный URL аватара'));
             return;
           }
           next(err);
