@@ -3,6 +3,7 @@ const router = require('express').Router();
 const auth = require('../middlewares/auth');
 const userRoutes = require('./users');
 const cardRoutes = require('./cards');
+const NotFoundError = require('../errors/notFoundError');
 const {
   login,
   createUser,
@@ -28,8 +29,8 @@ router.use(auth);
 
 router.use('/users', userRoutes);
 router.use('/cards', cardRoutes);
-router.use('/*', (req, res) => {
-  res.status(404).send({ message: 'Страница не найдена' });
+router.use('/*', (req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
 });
 
 module.exports = router;

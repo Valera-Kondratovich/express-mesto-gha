@@ -68,6 +68,15 @@ const getUserById = (req, res, next) => {
     .catch(next);
 };
 
+const getUserAboutMe = (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail(new NotFoundError('Пользователь не найден'))
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      next(err);
+    });
+};
+
 const updateUser = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
@@ -106,4 +115,5 @@ module.exports = {
   getUsers,
   updateUser,
   updateAvatarUser,
+  getUserAboutMe,
 };
